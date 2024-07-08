@@ -30,9 +30,11 @@ func main() {
 
 	display = uc8151.New(machine.SPI0, machine.EPD_CS_PIN, machine.EPD_DC_PIN, machine.EPD_RESET_PIN, machine.EPD_BUSY_PIN)
 	display.Configure(uc8151.Config{
-		Rotation: uc8151.ROTATION_270,
-		Speed:    uc8151.MEDIUM,
-		Blocking: true,
+		Rotation:    uc8151.ROTATION_270,
+		Speed:       uc8151.MEDIUM,
+		Blocking:    true,
+		FlickerFree: false,
+		UpdateAfter: 0,
 	})
 
 	btnA = machine.BUTTON_A
@@ -51,7 +53,7 @@ func main() {
 	setCustomData()
 
 	tainigoLogo()
-	time.Sleep(3 * time.Second)
+	time.Sleep(1 * time.Second)
 
 	for {
 		switch menu() {
@@ -67,6 +69,18 @@ func main() {
 		case 3:
 			demo()
 			break
+		case 4:
+			display.ClearBuffer()
+			display.Display()
+			display.WaitUntilIdle()
+			QR("1237^Sean^Gosiaco^Software Engineer^DIRECTV^sean.gosiaco@directv.com^United States of America^Strong (1 year+)")
+			display.Display()
+
+			for {
+				if btnA.Get() || btnB.Get() || btnC.Get() || btnUp.Get() || btnDown.Get() {
+					break
+				}
+			}
 		default:
 			break
 		}

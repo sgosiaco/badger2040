@@ -52,7 +52,13 @@ func badgeProfile() {
 	display.ClearBuffer()
 	midW := int16(176)
 	if profileErr == nil {
-		display.DrawBuffer(0, 0, 128, 120, []uint8(profileImg))
+		if err := display.DrawBuffer(0, 0, 128, 120, []uint8(profileImg)); err != nil {
+			tinyfont.WriteLine(&display, &proggy.TinySZ8pt7b, 0, 60, err.Error(), black)
+			println("DRAW BUF ERR", err.Error())
+		}
+	} else {
+		tinyfont.WriteLine(&display, &proggy.TinySZ8pt7b, 0, 60, profileErr.Error(), black)
+		println("PROFILE ERR", profileErr.Error())
 	}
 
 	showRect(0, 0, midW, 30, black)

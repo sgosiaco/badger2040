@@ -14,12 +14,13 @@ func menu() int16 {
 		"GopherCone Schedule",
 		"GopherCon Adventure",
 		"Demo",
+		"QR",
 	}
 
 	display.ClearBuffer()
 
 	showRect(0, 0, WIDTH, 16, black)
-	tinyfont.WriteLine(&display, &proggy.TinySZ8pt7b, 6, 12, "MENU - GOPHERCON.EU", white)
+	tinyfont.WriteLine(&display, &proggy.TinySZ8pt7b, 6, 12, "MENU - GOPHERCON", white)
 
 	selected := int16(0)
 	numOpts := int16(len(options))
