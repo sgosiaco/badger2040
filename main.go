@@ -5,10 +5,12 @@ import (
 	"machine"
 	"time"
 
+	"tinygo.org/x/drivers/pcf8563"
 	"tinygo.org/x/drivers/uc8151"
 )
 
 var display uc8151.Device
+var clock pcf8563.Device
 var btnA, btnB, btnC, btnUp, btnDown machine.Pin
 
 var black = color.RGBA{1, 1, 1, 255}
@@ -18,6 +20,8 @@ const WIDTH = 296
 const HEIGHT = 128
 
 func main() {
+	model := NewModel()
+
 	led3v3 := machine.ENABLE_3V3
 	led3v3.Configure(machine.PinConfig{Mode: machine.PinOutput})
 	led3v3.High()
@@ -37,6 +41,16 @@ func main() {
 		UpdateAfter: 0,
 	})
 
+	//machine.I2C0.Configure(machine.I2CConfig{
+	//	Frequency: 400000,
+	//	SDA:       machine.I2C0_SDA_PIN,
+	//	SCL:       machine.I2C0_SCL_PIN,
+	//	Mode:      machine.I2CModeController,
+	//})
+	//
+	//clock = pcf8563.New(machine.I2C0)
+	//clock.SetTime(time.Date(2024, 07, 10, 3, 0, 0, 0, time.UTC))
+
 	btnA = machine.BUTTON_A
 	btnB = machine.BUTTON_B
 	btnC = machine.BUTTON_C
@@ -48,6 +62,13 @@ func main() {
 	btnUp.Configure(machine.PinConfig{Mode: machine.PinInputPulldown})
 	btnDown.Configure(machine.PinConfig{Mode: machine.PinInputPulldown})
 
+	pressChan := make(chan Buttons, 1) // 5 works ok but can ghost
+	createInterrupt(btnA, A, pressChan)
+	createInterrupt(btnB, B, pressChan)
+	createInterrupt(btnC, C, pressChan)
+	createInterrupt(btnUp, UP, pressChan)
+	createInterrupt(btnDown, DOWN, pressChan)
+
 	display.ClearBuffer()
 	display.Display()
 	setCustomData()
@@ -56,34 +77,24 @@ func main() {
 	time.Sleep(1 * time.Second)
 
 	for {
-		switch menu() {
-		case 0:
-			profile()
-			break
-		case 1:
-			schedule(0, 0)
-			break
-		case 2:
-			adventure()
-			break
-		case 3:
-			demo()
-			break
-		case 4:
-			display.ClearBuffer()
-			display.Display()
-			display.WaitUntilIdle()
-			QR("1237^Sean^Gosiaco^Software Engineer^DIRECTV^sean.gosiaco@directv.com^United States of America^Strong (1 year+)")
-			display.Display()
-
-			for {
-				if btnA.Get() || btnB.Get() || btnC.Get() || btnUp.Get() || btnDown.Get() {
-					break
-				}
-			}
+		select {
+		case pressed := <-pressChan:
+			model.Transition(pressed)
 		default:
-			break
 		}
-		time.Sleep(1 * time.Second)
+
+		model.View()
+		//time.Sleep(time.Millisecond)
 	}
+}
+
+func createInterrupt(pin machine.Pin, button Buttons, pressChan chan<- Buttons) {
+	pin.SetInterrupt(machine.PinRising, func(p machine.Pin) {
+		if p.Get() {
+			select {
+			case pressChan <- button:
+			default:
+			}
+		}
+	})
 }

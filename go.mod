@@ -7,7 +7,6 @@ require (
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	golang.org/toolchain v0.0.1-go1.9rc2.windows-amd64
-	golang.org/x/image v0.0.0-20220617043117-41969df76e82
 	tinygo.org/x/drivers v0.28.0
 	tinygo.org/x/tinydraw v0.4.0
 	tinygo.org/x/tinyfont v0.4.0

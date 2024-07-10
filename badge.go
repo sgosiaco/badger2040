@@ -25,11 +25,6 @@ func profile() {
 	display.WaitUntilIdle()
 
 	badgeProfile()
-	for {
-		if btnA.Get() || btnB.Get() || btnC.Get() || btnUp.Get() || btnDown.Get() {
-			break
-		}
-	}
 }
 
 func demo() {
@@ -48,17 +43,21 @@ func demo() {
 	dvd("TinyGo")
 }
 
+func drawProfileImage() {
+	if err := display.DrawBuffer(0, 0, 128, 120, []uint8(profileImg)); err != nil {
+		tinyfont.WriteLine(&display, &proggy.TinySZ8pt7b, 0, 60, err.Error(), black)
+		//println("DRAW BUF ERR", err.Error())
+	}
+}
+
 func badgeProfile() {
 	display.ClearBuffer()
 	midW := int16(176)
 	if profileErr == nil {
-		if err := display.DrawBuffer(0, 0, 128, 120, []uint8(profileImg)); err != nil {
-			tinyfont.WriteLine(&display, &proggy.TinySZ8pt7b, 0, 60, err.Error(), black)
-			println("DRAW BUF ERR", err.Error())
-		}
+		drawProfileImage()
 	} else {
 		tinyfont.WriteLine(&display, &proggy.TinySZ8pt7b, 0, 60, profileErr.Error(), black)
-		println("PROFILE ERR", profileErr.Error())
+		//ln("PROFILE ERR", profileErr.Error())
 	}
 
 	showRect(0, 0, midW, 30, black)
@@ -411,6 +410,11 @@ func tainigoLogo() {
 }
 
 func QR(msg string) {
+	display.ClearBuffer()
+	QRPos(0, 0, WIDTH, HEIGHT, msg)
+}
+
+func QRPos(xp, yp, width, height int16, msg string) {
 	qr, err := qrcode.New(msg, qrcode.Medium)
 	if err != nil {
 		println(err, 123)
@@ -419,11 +423,12 @@ func QR(msg string) {
 	qrbytes := qr.Bitmap()
 	size := int16(len(qrbytes))
 
-	factor := int16(HEIGHT / len(qrbytes))
+	factor := int16(int(height) / len(qrbytes))
 
-	bx := (WIDTH - size*factor) / 2
-	by := (HEIGHT - size*factor) / 2
-	display.ClearBuffer()
+	bx := xp + ((width - size*factor) / 2)
+	by := yp + ((height - size*factor) / 2)
+	//display.ClearBuffer()
+	tinydraw.FilledRectangle(&display, xp, yp, width, height, white)
 	for y := int16(0); y < size; y++ {
 		for x := int16(0); x < size; x++ {
 			if qrbytes[y][x] {

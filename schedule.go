@@ -1,64 +1,11 @@
 package main
 
 import (
-	"time"
-
 	"tinygo.org/x/tinydraw"
 	"tinygo.org/x/tinyfont"
 	"tinygo.org/x/tinyfont/freesans"
 	"tinygo.org/x/tinyfont/proggy"
 )
-
-func schedule(day int, hour int) {
-	quit := false
-	for {
-		showDay(day, hour)
-		for {
-			time.Sleep(200 * time.Millisecond)
-			if btnDown.Get() {
-				hour++
-				if hour > len(scheduleData[day].talks)-2 {
-					hour = len(scheduleData[day].talks) - 2
-				} else {
-					break
-				}
-			}
-			if btnUp.Get() {
-				hour--
-				if hour < 0 {
-					hour = 0
-				} else {
-					break
-				}
-			}
-			if btnA.Get() {
-				day--
-				if day < 0 {
-					day = 0
-				} else {
-					hour = 0
-					break
-				}
-			}
-			if btnC.Get() {
-				day++
-				if day > len(scheduleData)-1 {
-					day = len(scheduleData) - 1
-				} else {
-					hour = 0
-					break
-				}
-			}
-			if btnB.Get() {
-				quit = true
-				break
-			}
-		}
-		if quit {
-			break
-		}
-	}
-}
 
 func showDay(day int, hour int) {
 	display.ClearBuffer()
@@ -87,5 +34,4 @@ func showDay(day int, hour int) {
 
 	display.Display()
 	display.WaitUntilIdle()
-
 }
