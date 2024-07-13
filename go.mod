@@ -14,4 +14,5 @@ require (
 
 require github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 
-replace tinygo.org/x/drivers => github.com/conejoninja/drivers v0.0.0-20240515082542-5f2645f5444d
+// replace tinygo.org/x/drivers => github.com/conejoninja/drivers v0.0.0-20240515082542-5f2645f5444d
+replace tinygo.org/x/drivers => ../drivers

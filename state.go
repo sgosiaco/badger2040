@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"time"
 
 	"tinygo.org/x/drivers"
@@ -27,12 +28,12 @@ var options = []string{
 	"Badge",
 	"GopherCon Schedule",
 	"GopherCon Wifi QR",
-	//"Clock",
+	"Clock",
 }
 
 const (
 	FIRST_STATE = BADGE
-	LAST_STATE  = WIFI_QR_CODE
+	LAST_STATE  = CLOCK
 )
 
 type Buttons int
@@ -49,12 +50,14 @@ const QR_DATA = "1237^Sean^Gosiaco^Software Engineer^DIRECTV^sean.gosiaco@direct
 const QR_WIFI = "WIFI:S:GopherCon;T:WPA;P:community;;"
 
 type Model struct {
-	State    State
-	Loaded   bool
-	Selected int16     // menu
-	Day      int       // schedule
-	Hour     int       // schedule
-	LastTime time.Time // clock
+	State       State
+	Loaded      bool
+	Selected    int16              // menu
+	Day         int                // schedule
+	Hour        int                // schedule
+	LastTime    time.Time          // clock
+	ClockCtx    context.Context    // clock
+	ClockCancel context.CancelFunc // clock
 }
 
 func NewModel() Model {
@@ -117,16 +120,16 @@ func (m *Model) View() {
 		display.Display()
 		m.Loaded = true
 	case CLOCK:
+		m.ClockCtx, m.ClockCancel = context.WithCancel(context.Background())
 		newTime, err := clock.ReadTime()
 		if err != nil {
-
 			return
 		}
 
-		if newTime.Sub(m.LastTime) < (10 * time.Second) {
-			return
-		}
-		m.LastTime = newTime
+		// if newTime.Sub(m.LastTime) < (10 * time.Second) {
+		// 	return
+		// }
+		// m.LastTime = newTime
 
 		display.ClearBuffer()
 		display.Display()
@@ -136,6 +139,15 @@ func (m *Model) View() {
 		w32, _ := tinyfont.LineWidth(&freesans.Bold12pt7b, str)
 		tinyfont.WriteLine(&display, &freesans.Bold12pt7b, int16(WIDTH-w32)/2, 70, str, black)
 		display.Display()
+		time.Sleep(time.Second)
+		// t := time.NewTimer(5 * time.Second)
+		// select {
+		// case <-t.C:
+		// case <-m.ClockCtx.Done():
+		// 	if !t.Stop() {
+		// 		<-t.C
+		// 	}
+		// }
 	}
 }
 
@@ -228,6 +240,7 @@ func (m *Model) Transition(button Buttons) {
 		m.State = MENU
 		m.Loaded = false
 	case CLOCK:
+		m.ClockCancel()
 		m.State = MENU
 		m.Loaded = false
 	}

@@ -5,12 +5,12 @@ import (
 	"machine"
 	"time"
 
-	"tinygo.org/x/drivers/pcf8563"
+	"tinygo.org/x/drivers/pcf85063"
 	"tinygo.org/x/drivers/uc8151"
 )
 
 var display uc8151.Device
-var clock pcf8563.Device
+var clock pcf85063.Device
 var btnA, btnB, btnC, btnUp, btnDown machine.Pin
 
 var black = color.RGBA{1, 1, 1, 255}
@@ -41,15 +41,16 @@ func main() {
 		UpdateAfter: 0,
 	})
 
-	//machine.I2C0.Configure(machine.I2CConfig{
-	//	Frequency: 400000,
-	//	SDA:       machine.I2C0_SDA_PIN,
-	//	SCL:       machine.I2C0_SCL_PIN,
-	//	Mode:      machine.I2CModeController,
-	//})
-	//
-	//clock = pcf8563.New(machine.I2C0)
-	//clock.SetTime(time.Date(2024, 07, 10, 3, 0, 0, 0, time.UTC))
+	machine.I2C0.Configure(machine.I2CConfig{
+		Frequency: pcf85063.I2C_SPEED_STANDARD,
+		SDA:       machine.I2C0_SDA_PIN,
+		SCL:       machine.I2C0_SCL_PIN,
+		Mode:      machine.I2CModeController,
+	})
+
+	clock = pcf85063.New(machine.I2C0)
+	clock.Reset()
+	clock.SetTime(time.Date(2024, 07, 11, 3, 30, 0, 0, time.UTC))
 
 	btnA = machine.BUTTON_A
 	btnB = machine.BUTTON_B
