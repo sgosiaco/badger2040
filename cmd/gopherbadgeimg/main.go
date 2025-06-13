@@ -46,7 +46,7 @@ func main() {
 		flag.PrintDefaults()
 		fmt.Fprintf(
 			flag.CommandLine.Output(),
-			"\nExamples:\n%s -outmode bin -ratio splash tainigo_128.png\n%s -outmode rice -ratio 128x128 -disable-dithering -show image.jpg\n",
+			"\nExamples:\n%s -outmode bin -ratio splash tainigo_128.png\n%s -outmode rice -ratio 120x128 -disable-dithering -show image.jpg\n",
 			os.Args[0],
 			os.Args[0],
 		)
@@ -150,7 +150,7 @@ func Usage() {
 	flag.PrintDefaults()
 	fmt.Fprintf(
 		flag.CommandLine.Output(),
-		"\nExamples:\n%s input.png -outmode bin -ratio profile\n%s input.jpg -outmode rice -ratio 128x128 -disable-dithering -show\n",
+		"\nExamples:\n%s input.png -outmode bin -ratio profile\n%s input.jpg -outmode rice -ratio 120x128 -disable-dithering -show\n",
 		os.Args[0],
 		os.Args[0],
 	)
